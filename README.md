@@ -7,8 +7,8 @@
 - [ ] Proper Documentation
 - [ ] Set-up instructions
 - [ ] Duplicate checking - do not repost already posted images on the same sub
-- [ ] Derpibooru post favoriting - when posted, favorite the image on derpibooru 
-
+- [ ] Derpibooru post favoriting - when posted, favorite the image on derpibooru (Need to ask derpibooru mods if this is allowed)  
+- [X] Linux support (via mono)  
 
 
 Requires [.Net 4.6.2](https://www.microsoft.com/en-us/download/details.aspx?id=53345)
