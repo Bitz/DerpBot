@@ -32,6 +32,9 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>derpbot.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Imgur.API, Version=4.0.1.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Imgur.API.4.0.1\lib\net45\Imgur.API.dll</HintPath>
@@ -73,6 +76,7 @@
     <Content Include="Configuration.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="derpbot.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -167,7 +167,7 @@ namespace DerpBot
                              "\r\n  \r\n" +
                              "---" +
                              "\r\n  \r\n" +
-                             $"This is a bot | [Info](http://club-flank.com/sweetiebot/) | [Report problems](/message/compose/?to=BitzLeon&subject=_sweetiebot running Derpbot {version}) | [Source code](https://google.com)";
+                             $"This is a bot | [Info](http://club-flank.com/sweetiebot/) | [Report problems](/message/compose/?to=BitzLeon&subject=_sweetiebot running Derpbot {version}) | [Source code](https://github.com/Bitz/DerpBot)";
 
 
             BotWebAgent webAgent = new BotWebAgent(
