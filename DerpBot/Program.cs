@@ -51,6 +51,14 @@ namespace DerpBot
             string secret_key = config.reddit.secret_id;
             string callback_url = config.reddit.callback_url;
 
+            StreamWriter logfile = Create.Log(loggingpath);
+
+            logfile.AutoFlush = true;
+            Log log = new Log(logfile);
+
+            SetOut(new PrefixedWriter());
+            log.WriteLine($"Log created {Now:MM:dd:yyyy}");
+
             int argument_index = 0;
             if (args.Length > 0)
             {
@@ -62,7 +70,7 @@ namespace DerpBot
 
             try
             {
-                WriteLine($"Running for subreddit /r/{config.subreddit_configurations[argument_index].method}");
+                WriteLine($"Running for subreddit /r/{config.subreddit_configurations[argument_index].subreddit}");
             }
             catch (Exception e)
             {
@@ -92,13 +100,7 @@ namespace DerpBot
                     break;
             }
 
-            StreamWriter logfile = Create.Log(loggingpath);
-
-            logfile.AutoFlush = true;
-            Log log = new Log(logfile);
-
-            SetOut(new PrefixedWriter());
-            log.WriteLine($"Log created {Now:MM:dd:yyyy}");
+           
 
 
             //Was going to rebuild using a list, but it is easier to skip this as XML doesn't play well with lists that arent csv
@@ -127,7 +129,7 @@ namespace DerpBot
             //TODO- Fix support for names with spaces
             artist = artist != Empty ? artist?.Replace("artist:", Empty) : "Unknown";
 
-            string postTitle = $"Derpibooru Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist:{artist}]";
+            string postTitle = $"Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist:{artist}]";
             string source = top.source_url.Length > 0 ? top.source_url : Empty;
 
             string hostedImageLink;
@@ -181,7 +183,7 @@ namespace DerpBot
             //Login to reddit
             reddit.LogIn(reddit_username, reddit_password);
             //Check to see if we logged in properly
-            if (reddit.User.FullName == reddit_username)
+            if (reddit.User.FullName.ToLower() == reddit_username)
             {
                 WriteLine("Logged into Reddit.");
                 Subreddit subreddit = reddit.GetSubredditAsync(reddit_sub).Result;
@@ -208,7 +210,6 @@ namespace DerpBot
 
             log.WriteLine("Application exited normally.");
             WriteLine("Application exited normally.");
-            ReadLine();
         }
     }
 }

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0"?>
 <configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <derpibooru  apikey="string" urltype="string" domain="string"/>
-  <imgur imgurApiKey="string" useimgur="1"/>
-  <reddit username="string" password="string" client_id="string" secret_key="string" callback_url="string"/>
+  <derpibooru  apikey="string" type="string" domain="string"/>
+  <imgur apikey="string" useimgur="1"/>
+  <reddit username="string" password="string" client_id="string" secret_id="string" callback_url="string"/>
 <subreddit_configurations>
   <sub method="string" subreddit="string" timeframe="string"/>
   <sub method="string" subreddit="string" timeframe="string"/>

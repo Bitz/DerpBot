@@ -76,8 +76,8 @@ namespace DerpBot.Functions
             CreateDirectory(loggingpath);
 
             string logName = $"{Now:MM-dd-yyyy--hh-mm-ss-tt}.log";
-            //TODO: path handle for linux fs
-            string logFullPath = $@"{loggingpath}\{logName}";
+            string logFullPath = Get.IsRunningOnMono() ? $@"{loggingpath}/{logName}" : $@"{loggingpath}\{logName}";
+          
             StreamWriter logfile = CreateText(logFullPath);
             return logfile;
         }

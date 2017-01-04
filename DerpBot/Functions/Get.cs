@@ -25,6 +25,10 @@ namespace DerpBot.Functions
                 return string.Empty;
             }
         }
+        public static bool IsRunningOnMono()
+        {
+            return Type.GetType("Mono.Runtime") != null;
+        }
 
     }
 }
