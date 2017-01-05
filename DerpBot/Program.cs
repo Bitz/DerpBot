@@ -110,16 +110,31 @@ namespace DerpBot
 
             //List<DerpibooruResponse.Search> listing =
             //    JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result).search.ToList();
-            //Testing advanced sorting.
+            ////Testing advanced sorting.
             //DateTime now = Now;
+            //List<Test> tests = new List<Test>();
+            //double t = TimeSpan.FromDays(1).TotalSeconds;
             //foreach (DerpibooruResponse.Search item in listing)
             //{
             //    TimeSpan k = now - item.created_at;
-            //    double positivity = (double)item.upvotes/(item.upvotes + item.downvotes);
+            //    double positivity = (double) item.upvotes/(item.upvotes + item.downvotes);
+            //    double popularityRating = Math.Log10(positivity + k.TotalSeconds / t); 
             //    WriteLine($"ID: {item.id}");
-            //    WriteLine($"Age: {Math.Round(k.TotalMinutes)}");
-            //    WriteLine($"Score: {item.score}");
             //    WriteLine($"Positivity rate: {positivity:P}");
+            //    //WriteLine($"Popularity rating: {popularityRating}");
+            //    WriteLine("-------------------------------------");
+            //    tests.Add(new Test {item = item, Popularity = popularityRating});
+            //}
+            //WriteLine("-------------------------------------");
+            //WriteLine("-------------------------------------");
+            //WriteLine("-------------------------------------");
+            //WriteLine("-------------------------------------");
+            //WriteLine("-------------------------------------");
+            //tests = new List<Test>(tests.OrderByDescending(o => o.Popularity));
+            //foreach (var i in tests)
+            //{
+            //    WriteLine($"ID: {i.item.id}");
+            //    WriteLine($"Score: {i.Popularity:P}");
             //    WriteLine("-------------------------------------");
             //}
 
@@ -191,7 +206,7 @@ namespace DerpBot
                              "\r\n  \r\n" +
                              "---" +
                              "\r\n  \r\n" +
-                             $"This is a bot | [Info](http://club-flank.com/sweetiebot/) | [Report problems](/message/compose/?to=BitzLeon&subject=_sweetiebot running Derpbot {version}) | [Source code](https://github.com/Bitz/DerpBot)";
+                             $"This is a bot | [Info](https://bitz.rocks/derpbot/) | [Report problems](/message/compose/?to=BitzLeon&subject=_sweetiebot running Derpbot {version}) | [Source code](https://github.com/Bitz/DerpBot)";
 
 
             BotWebAgent webAgent = new BotWebAgent(

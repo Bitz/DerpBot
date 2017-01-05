@@ -63,6 +63,7 @@
     <Compile Include="Functions\Post.cs" />
     <Compile Include="Models\DerpibooruResponse.cs" />
     <Compile Include="Models\Request.cs" />
+    <Compile Include="Models\Test.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
