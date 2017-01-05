@@ -43,13 +43,13 @@ namespace DerpBot
 
 
             string imgurApiKey = config.imgur.apikey;
-            bool rehost_on_imgur = config.imgur.useimgur == 1;
+            bool rehostOnImgur = config.imgur.useimgur == 1;
 
-            string reddit_username = config.reddit.username;
-            string reddit_password = config.reddit.password;
-            string client_id = config.reddit.client_id;
-            string secret_key = config.reddit.secret_id;
-            string callback_url = config.reddit.callback_url;
+            string redditUsername = config.reddit.username;
+            string redditPassword = config.reddit.password;
+            string clientId = config.reddit.client_id;
+            string secretKey = config.reddit.secret_id;
+            string callbackUrl = config.reddit.callback_url;
 
             StreamWriter logfile = Create.Log(loggingpath);
 
@@ -59,10 +59,10 @@ namespace DerpBot
             SetOut(new PrefixedWriter());
             log.WriteLine($"Log created {Now:MM:dd:yyyy}");
 
-            int argument_index = 0;
+            int argumentIndex = 0;
             if (args.Length > 0)
             {
-                if (int.TryParse(args[0], out argument_index))
+                if (int.TryParse(args[0], out argumentIndex))
                 {
                     WriteLine("Found valid argument!");
                 }
@@ -70,7 +70,7 @@ namespace DerpBot
 
             try
             {
-                WriteLine($"Running for subreddit /r/{config.subreddit_configurations[argument_index].subreddit}");
+                WriteLine($"Running for subreddit /r/{config.subreddit_configurations[argumentIndex].subreddit}");
             }
             catch (Exception e)
             {
@@ -78,16 +78,16 @@ namespace DerpBot
                 ReadLine();
                 Environment.Exit(1);
             }
-            string method = config.subreddit_configurations[argument_index].method;
-            string reddit_sub = config.subreddit_configurations[argument_index].subreddit;
-            string time_frame = config.subreddit_configurations[argument_index].timeframe;
+            string method = config.subreddit_configurations[argumentIndex].method;
+            string redditSub = config.subreddit_configurations[argumentIndex].subreddit;
+            string timeFrame = config.subreddit_configurations[argumentIndex].timeframe;
             //daily, weekly, monthly, off 
             //Daily will look at yesterdays post
             //Weekly will look at the posts for the last 7 days (if ran on 10th, will get top posts between 3rd-10th)
             //Monthly will look at last months posts (if ran in September, you will get August's top posts)
-            string tags = config.subreddit_configurations[argument_index].tags;
+            string tags = config.subreddit_configurations[argumentIndex].tags;
 
-            switch (time_frame)
+            switch (timeFrame)
             {
                 case "daily":
                     tags += $", created_at:{Now.AddDays(-1):yyyy-MM-dd}";
@@ -100,41 +100,65 @@ namespace DerpBot
                     break;
             }
 
-           
-
-
-            //Was going to rebuild using a list, but it is easier to skip this as XML doesn't play well with lists that arent csv
-            //StringBuilder builtSearch = new StringBuilder();
-            //string last = tags.Last();
-            //foreach (var tag in tags)
-            //{
-            //    if (tag != last)
-            //        builtSearch.Append(tag).Append(",").Append(" ");
-            //    else
-            //        builtSearch.Append(tag);
-            //}
-
             //Build the request url for Derpibooru
-            string requestUrl = $"{urltype}://{domain}/{method}?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc";
+            string requestUrl = $"{urltype}://{domain}/{method}?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
 
 
             //Why not shove the api call method, json serialization and object lambada selection all in one statment!? MWHAHAHAHA
-            DerpibooruResponse.Search top =
-                JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result)
-                    .search.First();
+            DerpibooruResponse.Search top = 
+            JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result).search.First();
+
+            //List<DerpibooruResponse.Search> listing =
+            //    JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result).search.ToList();
+            //Testing advanced sorting.
+            //DateTime now = Now;
+            //foreach (DerpibooruResponse.Search item in listing)
+            //{
+            //    TimeSpan k = now - item.created_at;
+            //    double positivity = (double)item.upvotes/(item.upvotes + item.downvotes);
+            //    WriteLine($"ID: {item.id}");
+            //    WriteLine($"Age: {Math.Round(k.TotalMinutes)}");
+            //    WriteLine($"Score: {item.score}");
+            //    WriteLine($"Positivity rate: {positivity:P}");
+            //    WriteLine("-------------------------------------");
+            //}
 
             //Find the artist data in the tags that were pulled from Derpibooru
             List<string> topImageTags = top.tags.Split(',').ToList();
-            string artist = topImageTags.SingleOrDefault(x => x.Contains("artist:"));
-            //TODO- Fix support for names with spaces
-            artist = artist != Empty ? artist?.Replace("artist:", Empty) : "Unknown";
+            List<string> artists = topImageTags.Where(x => x.Contains("artist:")).ToList();
+            string artistString = null;
+            if (artists.Count == 0)
+            {
+                artistString = "Unknown";
+            }
+            if (artists.Count == 1)
+            {
+                
+                artistString = artists.Single().Replace("artist:", Empty);
+            }
+                
+            if (artists.Count > 1)
+            {
+                foreach (var a in artists)
+                {
+                    if (a != artists.Last())
+                    {
+                        artistString += $"{a.Replace("artist:", Empty)} +";
+                    }
+                    else
+                    {
+                        artistString += a.Replace("artist:", Empty);
+                    }
+                }
+            }
 
-            string postTitle = $"Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist:{artist}]";
+
+            string postTitle = $"Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist:{artistString}]";
             string source = top.source_url.Length > 0 ? top.source_url : Empty;
 
             string hostedImageLink;
             WriteLine($"Top found with ID {top.id}");
-            if (rehost_on_imgur)
+            if (rehostOnImgur)
             {
                 //Build imgur request
                 Request.Imgur imgurRequest = new Request.Imgur
@@ -159,13 +183,11 @@ namespace DerpBot
             }
 
             //Building all the reddit request parts
-            string parsedsource = source == Empty ? "No source provided" : $"[Original Source]({source})";
-            string parsed_derpibooru_source = config.imgur.useimgur != 1
+            string parsedSource = source == Empty ? "No source provided" : $"[Original Source]({source})";
+            string parsedDerpibooruSource = config.imgur.useimgur != 1
                 ? Empty
                 : $"| [Derpibooru Link]({urltype}://{domain}/{top.id})";
-            string comment = $"[](/sweetiecardbot) {parsedsource} {parsed_derpibooru_source} " +
-                             "\r\n  \r\n" +
-                             "[](/sp)" +
+            string comment = $"[](/sweetiecardbot) {parsedSource} {parsedDerpibooruSource} " +
                              "\r\n  \r\n" +
                              "---" +
                              "\r\n  \r\n" +
@@ -173,20 +195,20 @@ namespace DerpBot
 
 
             BotWebAgent webAgent = new BotWebAgent(
-                reddit_username,
-                reddit_password,
-                client_id,
-                secret_key,
-                callback_url);
+                redditUsername,
+                redditPassword,
+                clientId,
+                secretKey,
+                callbackUrl);
             //Create reddit client instance
             Reddit reddit = new Reddit(webAgent, true);
             //Login to reddit
-            reddit.LogIn(reddit_username, reddit_password);
+            reddit.LogIn(redditUsername, redditPassword);
             //Check to see if we logged in properly
-            if (reddit.User.FullName.ToLower() == reddit_username)
+            if (reddit.User.FullName.ToLower() == redditUsername)
             {
                 WriteLine("Logged into Reddit.");
-                Subreddit subreddit = reddit.GetSubredditAsync(reddit_sub).Result;
+                Subreddit subreddit = reddit.GetSubredditAsync(redditSub).Result;
 
                 try
                 {
