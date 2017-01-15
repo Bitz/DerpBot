@@ -21,7 +21,7 @@ namespace DerpBot
     {
         static void Main(string[] args)
         {
-            string version = "0.3";
+            const string version = "0.3";
             Title = $"Derpbot {version}";
             configuration config = null;
             try
@@ -35,7 +35,7 @@ namespace DerpBot
                 Environment.Exit(0);
             }
             //Assign variables from the loaded settings.
-            string loggingpath = @"logs";
+            const string loggingpath = @"logs";
             string derpibooruApiKey = config.derpibooru.apikey;
             string urltype = config.derpibooru.type;
             string domain = config.derpibooru.domain;
