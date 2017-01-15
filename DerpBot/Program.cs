@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-
 using DerpBot.Functions;
 using DerpBot.Models;
 
@@ -40,7 +39,7 @@ namespace DerpBot
             string derpibooruApiKey = config.derpibooru.apikey;
             string urltype = config.derpibooru.type;
             string domain = config.derpibooru.domain;
-
+            //List<string> imageExtractableDomains = new List<string> { "imgur.com", "derpibooru.org", "i.imgur.com" };
 
             string imgurApiKey = config.imgur.apikey;
             bool rehostOnImgur = config.imgur.useimgur == 1;
@@ -70,7 +69,7 @@ namespace DerpBot
 
             try
             {
-                WriteLine($"Running for subreddit /r/{config.subreddit_configurations[argumentIndex].subreddit}");
+                WriteLine($"Running for subreddit /r/{config.subreddit_configurations.sub[argumentIndex].subreddit}");
             }
             catch (Exception e)
             {
@@ -78,25 +77,33 @@ namespace DerpBot
                 ReadLine();
                 Environment.Exit(1);
             }
-            string method = config.subreddit_configurations[argumentIndex].method;
-            string redditSub = config.subreddit_configurations[argumentIndex].subreddit;
-            string timeFrame = config.subreddit_configurations[argumentIndex].timeframe;
+            string method = config.subreddit_configurations.sub[argumentIndex].method;
+            string redditSub = config.subreddit_configurations.sub[argumentIndex].subreddit;
+            string timeFrame = config.subreddit_configurations.sub[argumentIndex].timeframe;
+            List<string> sensitivetags = config.subreddit_configurations.sub[argumentIndex].sensitivetags.Split(',').ToList();
             //daily, weekly, monthly, off 
             //Daily will look at yesterdays post
             //Weekly will look at the posts for the last 7 days (if ran on 10th, will get top posts between 3rd-10th)
             //Monthly will look at last months posts (if ran in September, you will get August's top posts)
-            string tags = config.subreddit_configurations[argumentIndex].tags;
-
+            string tags = config.subreddit_configurations.sub[argumentIndex].tags;
+            DateTime minage;
             switch (timeFrame)
             {
                 case "daily":
-                    tags += $", created_at:{Now.AddDays(-1):yyyy-MM-dd}";
+                    minage = Now.AddDays(-1);
+                    tags += $", created_at:{minage:yyyy-MM-dd}";
                     break;
                 case "weekly":
-                    tags += $", created_at.gte:{Now.AddDays(-7):yyyy-MM-dd}";
+                    minage = Now.AddDays(-7);
+                    tags += $", created_at.gte:{minage:yyyy-MM-dd}";
                     break;
                 case "monthly":
-                    tags += $", created_at:{Now.AddMonths(-1):yyyy-MM}";
+                    minage = Now.AddMonths(-1);
+                    tags += $", created_at:{minage:yyyy-MM}";
+                    break;
+                default:
+                    minage = Now.AddDays(-1);
+                    tags += $", created_at:{minage:yyyy-MM-dd}";
                     break;
             }
 
@@ -137,9 +144,9 @@ namespace DerpBot
             //    WriteLine($"Score: {i.Popularity:P}");
             //    WriteLine("-------------------------------------");
             //}
-
+            
             //Find the artist data in the tags that were pulled from Derpibooru
-            List<string> topImageTags = top.tags.Split(',').ToList();
+            List<string> topImageTags = top.tags.Split(',').Select(x => x.Trim()).ToList();
             List<string> artists = topImageTags.Where(x => x.Contains("artist:")).ToList();
             string artistString = null;
             if (artists.Count == 0)
@@ -166,9 +173,15 @@ namespace DerpBot
                     }
                 }
             }
-
-
-            string postTitle = $"Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist:{artistString}]";
+            string sensitiveTitle = Empty;
+            if (topImageTags.Intersect(sensitivetags).Any())
+            {
+                foreach (string match in topImageTags.Intersect(sensitivetags))
+                {
+                    sensitiveTitle = $"[{match.ToUpper()}] ";
+                }
+            }
+            string postTitle = $"Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist: {artistString}] {sensitiveTitle}";
             string source = top.source_url.Length > 0 ? top.source_url : Empty;
 
             string hostedImageLink;
@@ -224,7 +237,19 @@ namespace DerpBot
             {
                 WriteLine("Logged into Reddit.");
                 Subreddit subreddit = reddit.GetSubredditAsync(redditSub).Result;
+                //TODO: Working on image matching.
+                //List<RedditSharp.Things.Post> newPosts = subreddit.Search(minage, Now).ToList();
+                //newPosts = newPosts.Where(x => !x.IsSelfPost && imageExtractableDomains.Contains(x.Domain)).ToList();
 
+
+                //WriteLine($"posts matching amount: {newPosts.Count}");
+
+                //foreach (var post in newPosts)
+                //{
+                //    WriteLine(post.Title);
+                //    WriteLine(post.Domain);
+                //    WriteLine(post.Url);
+                //}
                 try
                 {
                     WriteLine("Posting to reddit");

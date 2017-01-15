@@ -1,4 +1,7 @@
-﻿namespace DerpBot.Models
+﻿// ReSharper disable InconsistentNaming
+// ReSharper disable PartialTypeWithSinglePart
+// ReSharper disable ArrangeThisQualifier
+namespace DerpBot.Models
 {
 
 
@@ -16,7 +19,7 @@
 
         private configurationReddit redditField;
 
-        private configurationSub[] subreddit_configurationsField;
+        private configurationSubreddit_configurations subreddit_configurationsField;
 
         /// <remarks/>
         public configurationDerpibooru derpibooru
@@ -58,8 +61,7 @@
         }
 
         /// <remarks/>
-        [System.Xml.Serialization.XmlArrayItemAttribute("sub", IsNullable = false)]
-        public configurationSub[] subreddit_configurations
+        public configurationSubreddit_configurations subreddit_configurations
         {
             get
             {
@@ -79,11 +81,25 @@
     public partial class configurationDerpibooru
     {
 
+        private string apikeyField;
+
         private string typeField;
 
         private string domainField;
 
-        private string apikeyField;
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string apikey
+        {
+            get
+            {
+                return this.apikeyField;
+            }
+            set
+            {
+                this.apikeyField = value;
+            }
+        }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -110,20 +126,6 @@
             set
             {
                 this.domainField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string apikey
-        {
-            get
-            {
-                return this.apikeyField;
-            }
-            set
-            {
-                this.apikeyField = value;
             }
         }
     }
@@ -260,16 +262,72 @@
     [System.SerializableAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
     [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
-    public partial class configurationSub
+    public partial class configurationSubreddit_configurations
     {
+
+        private configurationSubreddit_configurationsSub[] subField;
+
+        private string[] textField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("sub")]
+        public configurationSubreddit_configurationsSub[] sub
+        {
+            get
+            {
+                return this.subField;
+            }
+            set
+            {
+                this.subField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlTextAttribute()]
+        public string[] Text
+        {
+            get
+            {
+                return this.textField;
+            }
+            set
+            {
+                this.textField = value;
+            }
+        }
+    }
+
+    /// <remarks/>
+    [System.SerializableAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    public partial class configurationSubreddit_configurationsSub
+    {
+
+        private string methodField;
 
         private string subredditField;
 
-        private string tagsField;
-
         private string timeframeField;
 
-        private string methodField;
+        private string tagsField;
+
+        private string sensitivetagsField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string method
+        {
+            get
+            {
+                return this.methodField;
+            }
+            set
+            {
+                this.methodField = value;
+            }
+        }
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
@@ -282,20 +340,6 @@
             set
             {
                 this.subredditField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string tags
-        {
-            get
-            {
-                return this.tagsField;
-            }
-            set
-            {
-                this.tagsField = value;
             }
         }
 
@@ -315,18 +359,36 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string method
+        public string tags
         {
             get
             {
-                return this.methodField;
+                return this.tagsField;
             }
             set
             {
-                this.methodField = value;
+                this.tagsField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute("sensitive-tags")]
+        public string sensitivetags
+        {
+            get
+            {
+                return this.sensitivetagsField;
+            }
+            set
+            {
+                this.sensitivetagsField = value;
             }
         }
     }
+
+
+
+
 
 
 
