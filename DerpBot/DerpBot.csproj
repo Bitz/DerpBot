@@ -45,13 +45,18 @@
       <HintPath>..\packages\Newtonsoft.Json.9.0.2-beta1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="RedditSharp, Version=1.1.9.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\RedditSharp.1.1.9\lib\net45\RedditSharp.dll</HintPath>
+    <Reference Include="RedditSharp, Version=1.1.10.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\RedditSharp.1.1.10\lib\net45\RedditSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Net.Http.Formatting, Version=5.2.3.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.5.2.3\lib\net45\System.Net.Http.Formatting.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +67,7 @@
     <Compile Include="Functions\Log.cs" />
     <Compile Include="Functions\Post.cs" />
     <Compile Include="Models\DerpibooruResponse.cs" />
+    <Compile Include="Models\Gfycat.cs" />
     <Compile Include="Models\Request.cs" />
     <Compile Include="Models\Test.cs" />
     <Compile Include="Program.cs" />

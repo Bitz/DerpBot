@@ -42,6 +42,8 @@ namespace DerpBot
             //List<string> imageExtractableDomains = new List<string> { "imgur.com", "derpibooru.org", "i.imgur.com" };
 
             string imgurApiKey = config.imgur.apikey;
+            string gfycatApiKey = config.gfycat.client_secret;
+            string gfycatClientId = config.gfycat.client_id;
             bool rehostOnImgur = config.imgur.useimgur == 1;
 
             string redditUsername = config.reddit.username;
@@ -188,21 +190,37 @@ namespace DerpBot
             WriteLine($"Top found with ID {top.id}");
             if (rehostOnImgur)
             {
-                //Build imgur request
-                Request.Imgur imgurRequest = new Request.Imgur
+                if (Path.GetExtension(top.image) != ".gif")
                 {
-                    ApiKey = imgurApiKey,
-                    Description = source,
-                    Title = postTitle,
-                    Url = $"{urltype}:{top.image}"
-                };
+                   
+                    //Build imgur request
+                    Request.Imgur imgurRequest = new Request.Imgur
+                    {
+                        ApiKey = imgurApiKey,
+                        Description = source,
+                        Title = postTitle,
+                        Url = $"{urltype}:{top.image}"
+                    };
 
-                //Post to imgur
-                IImage hostedImage = Post.PostToImgur(imgurRequest).Result;
-                WriteLine($"Image uploaded to Imgur: {hostedImage.Link}");
-                hostedImageLink = hostedImage.Link;
-                //Keep the delete hash in a text file, incase someone doesn't want us reposting their content
-                HashDb.Write($"{hostedImage.Link} http://imgur.com/delete/{hostedImage.DeleteHash}");
+                    //Post to imgur
+                    IImage hostedImage = Post.PostToImgur(imgurRequest).Result;
+                    WriteLine($"Image uploaded to Imgur: {hostedImage.Link}");
+                    hostedImageLink = hostedImage.Link;
+                    //Keep the delete hash in a text file, incase someone doesn't want us reposting their content
+                    HashDb.Write($"{hostedImage.Link} http://imgur.com/delete/{hostedImage.DeleteHash}");
+                }
+                else
+                {
+                    Request.Gfycat gfycatRequest = new Request.Gfycat
+                    {
+                        ApiKey = gfycatApiKey,
+                        ClientId = gfycatClientId,
+                        ImageUrl = $"{urltype}:{top.image}",
+                        Title = postTitle
+                    };
+                    hostedImageLink = Post.PostToGfycat(gfycatRequest);
+                }
+
             }
             else
             {

@@ -5,6 +5,7 @@ namespace DerpBot.Models
 {
 
 
+
     /// <remarks/>
     [System.SerializableAttribute()]
     [System.ComponentModel.DesignerCategoryAttribute("code")]
@@ -16,6 +17,8 @@ namespace DerpBot.Models
         private configurationDerpibooru derpibooruField;
 
         private configurationImgur imgurField;
+
+        private configurationGfycat gfycatField;
 
         private configurationReddit redditField;
 
@@ -44,6 +47,19 @@ namespace DerpBot.Models
             set
             {
                 this.imgurField = value;
+            }
+        }
+
+        /// <remarks/>
+        public configurationGfycat gfycat
+        {
+            get
+            {
+                return this.gfycatField;
+            }
+            set
+            {
+                this.gfycatField = value;
             }
         }
 
@@ -166,6 +182,46 @@ namespace DerpBot.Models
             set
             {
                 this.useimgurField = value;
+            }
+        }
+    }
+
+    /// <remarks/>
+    [System.SerializableAttribute()]
+    [System.ComponentModel.DesignerCategoryAttribute("code")]
+    [System.Xml.Serialization.XmlTypeAttribute(AnonymousType = true)]
+    public partial class configurationGfycat
+    {
+
+        private string client_idField;
+
+        private string client_secretField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string client_id
+        {
+            get
+            {
+                return this.client_idField;
+            }
+            set
+            {
+                this.client_idField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string client_secret
+        {
+            get
+            {
+                return this.client_secretField;
+            }
+            set
+            {
+                this.client_secretField = value;
             }
         }
     }
@@ -385,6 +441,8 @@ namespace DerpBot.Models
             }
         }
     }
+
+
 
 
 
