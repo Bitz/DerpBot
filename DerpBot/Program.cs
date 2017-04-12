@@ -88,24 +88,19 @@ namespace DerpBot
             //Weekly will look at the posts for the last 7 days (if ran on 10th, will get top posts between 3rd-10th)
             //Monthly will look at last months posts (if ran in September, you will get August's top posts)
             string tags = config.subreddit_configurations.sub[argumentIndex].tags;
-            DateTime minage;
             switch (timeFrame)
             {
                 case "daily":
-                    minage = Now.AddDays(-1);
-                    tags += $", created_at:{minage:yyyy-MM-dd}";
+                    tags += ", first_seen_at.gte:24 hours ago";
                     break;
                 case "weekly":
-                    minage = Now.AddDays(-7);
-                    tags += $", created_at.gte:{minage:yyyy-MM-dd}";
+                    tags += ", first_seen_at.gte:7 days ago";
                     break;
                 case "monthly":
-                    minage = Now.AddMonths(-1);
-                    tags += $", created_at:{minage:yyyy-MM}";
+                    tags += ", first_seen_at.gte:1 months ago";
                     break;
                 default:
-                    minage = Now.AddDays(-1);
-                    tags += $", created_at:{minage:yyyy-MM-dd}";
+                    tags += ", first_seen_at.get:24 hours ago";
                     break;
             }
 
