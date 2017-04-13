@@ -73,12 +73,17 @@ namespace DerpBot.Functions
     {
         public static StreamWriter Log(string loggingpath)
         {
-            CreateDirectory(loggingpath);
-
-            string logName = $"{Now:MM-dd-yyyy--hh-mm-ss-tt}.log";
-            string logFullPath = Get.IsRunningOnMono() ? $@"{loggingpath}/{logName}" : $@"{loggingpath}\{logName}";
-          
-            StreamWriter logfile = CreateText(logFullPath);
+            string location = System.Reflection.Assembly.GetExecutingAssembly().Location;
+            string absoluteCurrentDirectory = Path.GetDirectoryName(location);
+            StreamWriter logfile = null;
+            if (absoluteCurrentDirectory != null)
+            {
+            CreateDirectory(Path.Combine(absoluteCurrentDirectory, loggingpath));
+            string fullloggingPath = Path.Combine(absoluteCurrentDirectory, loggingpath);
+            string logName = $"{Now:MM-dd-yyyy-hh-mm-ss-tt}.log";
+            fullloggingPath = Path.Combine(fullloggingPath, logName);
+            logfile = CreateText(fullloggingPath);
+            }
             return logfile;
         }
     }

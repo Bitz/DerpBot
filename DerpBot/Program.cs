@@ -21,9 +21,10 @@ namespace DerpBot
     {
         static void Main(string[] args)
         {
-            const string version = "0.3";
+            const string version = "0.0.5";
             Title = $"Derpbot {version}";
             configuration config = null;
+            
             try
             {
                 config = Load.Config();
