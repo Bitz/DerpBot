@@ -1,3 +1,15 @@
+<h4>0.0.7</h4>
+<ul class="log">
+<li>Added duplicate handling! Woo!</li>
+<li>Modified the config a bit- removed pointless configurables.</li>
+</ul>
+<hr>
+<h4>0.0.6</h4>
+<ul class="log">
+<li>Reverted ranges (was buggy)</li>
+<li>Added more link in description</li>
+</ul>
+<hr>
 <h4>0.0.5</h4>
 <ul class="log">
 <li>Added better handling for time ranges</li>

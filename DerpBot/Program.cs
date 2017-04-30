@@ -4,12 +4,10 @@ using System.IO;
 using System.Linq;
 using DerpBot.Functions;
 using DerpBot.Models;
-
 using Imgur.API.Models;
 using Newtonsoft.Json;
 using RedditSharp;
 using RedditSharp.Things;
-
 using static System.DateTime;
 using static System.Console;
 using static System.String;
@@ -21,10 +19,10 @@ namespace DerpBot
     {
         static void Main(string[] args)
         {
-            const string version = "0.0.5";
+            const string version = "0.0.7";
             Title = $"Derpbot {version}";
             configuration config = null;
-            
+
             try
             {
                 config = Load.Config();
@@ -38,9 +36,7 @@ namespace DerpBot
             //Assign variables from the loaded settings.
             const string loggingpath = @"logs";
             string derpibooruApiKey = config.derpibooru.apikey;
-            string urltype = config.derpibooru.type;
-            string domain = config.derpibooru.domain;
-            //List<string> imageExtractableDomains = new List<string> { "imgur.com", "derpibooru.org", "i.imgur.com" };
+            string domain = "derpibooru.org";
 
             string imgurApiKey = config.imgur.apikey;
             string gfycatApiKey = config.gfycat.client_secret;
@@ -52,7 +48,6 @@ namespace DerpBot
             string clientId = config.reddit.client_id;
             string secretKey = config.reddit.secret_id;
             string callbackUrl = config.reddit.callback_url;
-
             StreamWriter logfile = Create.Log(loggingpath);
 
             logfile.AutoFlush = true;
@@ -72,7 +67,7 @@ namespace DerpBot
 
             try
             {
-                WriteLine($"Running for subreddit /r/{config.subreddit_configurations.sub[argumentIndex].subreddit}");
+                WriteLine($"Running for subreddit /r/{config.subreddit_configurations[argumentIndex].subreddit}");
             }
             catch (Exception e)
             {
@@ -80,15 +75,15 @@ namespace DerpBot
                 ReadLine();
                 Environment.Exit(1);
             }
-            string method = config.subreddit_configurations.sub[argumentIndex].method;
-            string redditSub = config.subreddit_configurations.sub[argumentIndex].subreddit;
-            string timeFrame = config.subreddit_configurations.sub[argumentIndex].timeframe;
-            List<string> sensitivetags = config.subreddit_configurations.sub[argumentIndex].sensitivetags.Split(',').ToList();
+            string redditSub = config.subreddit_configurations[argumentIndex].subreddit;
+            string timeFrame = config.subreddit_configurations[argumentIndex].timeframe;
+            List<string> sensitivetags =
+                config.subreddit_configurations[argumentIndex].sensitivetags.Split(',').ToList();
             //daily, weekly, monthly, off 
             //Daily will look at yesterdays post
             //Weekly will look at the posts for the last 7 days (if ran on 10th, will get top posts between 3rd-10th)
             //Monthly will look at last months posts (if ran in September, you will get August's top posts)
-            string tags = config.subreddit_configurations.sub[argumentIndex].tags;
+            string tags = config.subreddit_configurations[argumentIndex].tags;
             DateTime minage;
             switch (timeFrame)
             {
@@ -111,43 +106,14 @@ namespace DerpBot
             }
 
             //Build the request url for Derpibooru
-            string requestUrl = $"{urltype}://{domain}/{method}?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
-
+            string requestUrl =
+                $"https://{domain}/search.json?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
 
             //Why not shove the api call method, json serialization and object lambada selection all in one statment!? MWHAHAHAHA
-            DerpibooruResponse.Search top = 
-            JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result).search.First();
+            DerpibooruResponse.Search top =
+                JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result)
+                    .search.First();
 
-            //List<DerpibooruResponse.Search> listing =
-            //    JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result).search.ToList();
-            ////Testing advanced sorting.
-            //DateTime now = Now;
-            //List<Test> tests = new List<Test>();
-            //double t = TimeSpan.FromDays(1).TotalSeconds;
-            //foreach (DerpibooruResponse.Search item in listing)
-            //{
-            //    TimeSpan k = now - item.created_at;
-            //    double positivity = (double) item.upvotes/(item.upvotes + item.downvotes);
-            //    double popularityRating = Math.Log10(positivity + k.TotalSeconds / t); 
-            //    WriteLine($"ID: {item.id}");
-            //    WriteLine($"Positivity rate: {positivity:P}");
-            //    //WriteLine($"Popularity rating: {popularityRating}");
-            //    WriteLine("-------------------------------------");
-            //    tests.Add(new Test {item = item, Popularity = popularityRating});
-            //}
-            //WriteLine("-------------------------------------");
-            //WriteLine("-------------------------------------");
-            //WriteLine("-------------------------------------");
-            //WriteLine("-------------------------------------");
-            //WriteLine("-------------------------------------");
-            //tests = new List<Test>(tests.OrderByDescending(o => o.Popularity));
-            //foreach (var i in tests)
-            //{
-            //    WriteLine($"ID: {i.item.id}");
-            //    WriteLine($"Score: {i.Popularity:P}");
-            //    WriteLine("-------------------------------------");
-            //}
-            
             //Find the artist data in the tags that were pulled from Derpibooru
             List<string> topImageTags = top.tags.Split(',').Select(x => x.Trim()).ToList();
             List<string> artists = topImageTags.Where(x => x.Contains("artist:")).ToList();
@@ -158,17 +124,16 @@ namespace DerpBot
             }
             if (artists.Count == 1)
             {
-                
                 artistString = artists.Single().Replace("artist:", Empty);
             }
-                
+
             if (artists.Count > 1)
             {
                 foreach (var a in artists)
                 {
                     if (a != artists.Last())
                     {
-                        artistString += $"{a.Replace("artist:", Empty)} +";
+                        artistString += $"{a.Replace("artist:", Empty)} + ";
                     }
                     else
                     {
@@ -193,14 +158,13 @@ namespace DerpBot
             {
                 if (Path.GetExtension(top.image) != ".gif")
                 {
-                   
                     //Build imgur request
                     Request.Imgur imgurRequest = new Request.Imgur
                     {
                         ApiKey = imgurApiKey,
                         Description = source,
                         Title = postTitle,
-                        Url = $"{urltype}:{top.image}"
+                        Url = $"https:{top.image}"
                     };
 
                     //Post to imgur
@@ -216,25 +180,26 @@ namespace DerpBot
                     {
                         ApiKey = gfycatApiKey,
                         ClientId = gfycatClientId,
-                        ImageUrl = $"{urltype}:{top.image}",
+                        ImageUrl = $"https:{top.image}",
                         Title = postTitle
                     };
                     hostedImageLink = Post.PostToGfycat(gfycatRequest);
                 }
-
             }
             else
             {
                 //If we aren't using imgur to host, we are just going to build a link to derpibooru instead
-                hostedImageLink = $"{urltype}://{domain}/{top.id}";
+                hostedImageLink = $"https://{domain}/{top.id}";
             }
 
             //Building all the reddit request parts
+            string moreSource =
+                $"[More]({Uri.EscapeUriString($"https://{domain}/search?q={config.subreddit_configurations[argumentIndex].tags}&filter_id=56027")})";
             string parsedSource = source == Empty ? "No source provided" : $"[Original Source]({source})";
             string parsedDerpibooruSource = config.imgur.useimgur != 1
                 ? Empty
-                : $"| [Derpibooru Link]({urltype}://{domain}/{top.id})";
-            string comment = $"[](/sweetiecardbot) {parsedSource} {parsedDerpibooruSource} " +
+                : $"[Derpibooru Link](https://{domain}/{top.id})";
+            string comment = $"[](/sweetiecardbot) {parsedSource} | {parsedDerpibooruSource} | {moreSource} " +
                              "\r\n  \r\n" +
                              "---" +
                              "\r\n  \r\n" +
@@ -255,40 +220,49 @@ namespace DerpBot
             if (reddit.User.FullName.ToLower() == redditUsername)
             {
                 WriteLine("Logged into Reddit.");
-                Subreddit subreddit = reddit.GetSubredditAsync(redditSub).Result;
-                //TODO: Working on image matching.
-                //List<RedditSharp.Things.Post> newPosts = subreddit.Search(minage, Now).ToList();
-                //newPosts = newPosts.Where(x => !x.IsSelfPost && imageExtractableDomains.Contains(x.Domain)).ToList();
-
-
-                //WriteLine($"posts matching amount: {newPosts.Count}");
-
-                //foreach (var post in newPosts)
-                //{
-                //    WriteLine(post.Title);
-                //    WriteLine(post.Domain);
-                //    WriteLine(post.Url);
-                //}
-                try
+                Subreddit subreddit = reddit.GetSubreddit(redditSub);
+                List<RedditSharp.Things.Post> newPosts =
+                    subreddit.New.Where(x => !x.IsSelfPost && x.Created >= minage).ToList();
+                WriteLine($"New posts to compare to: {newPosts.Count}");
+                List<bool> currentImageHash = Get.GetHash(hostedImageLink);
+                bool duplicateFound = false;
+                foreach (RedditSharp.Things.Post post in newPosts)
                 {
-                    WriteLine("Posting to reddit");
-                    RedditSharp.Things.Post post = subreddit.SubmitPost(postTitle, hostedImageLink);
-                    WriteLine("Commenting on post on reddit");
-                    post.Comment(comment);
+                    WriteLine($"Comparing post: {post.Title}");
+                    Get.ImageFromPost.ImageUrl temp = Get.ImageFromPost.GetImageUrl(post);
+                    if (temp.IsValid)
+                    {
+                        double equalElements =
+                            currentImageHash.Zip(Get.GetHash(temp.Url), (i, j) => i == j).Count(eq => eq) / 256.00;
+                        WriteLine($"{equalElements:P2}% similar");
+                        if (equalElements >= 0.95) duplicateFound = true;
+                        break;
+                    }
                 }
-                catch (Exception e)
+                if (!duplicateFound)
                 {
-                    WriteLine(e.Message);
-                    log.WriteLine(e.Message);
+                    try
+                    {
+                        WriteLine("Posting to reddit");
+                        RedditSharp.Things.Post post = subreddit.SubmitPost(postTitle, hostedImageLink);
+                        WriteLine("Commenting on post on Reddit");
+                        post.Comment(comment);
+                    }
+                    catch (Exception e)
+                    {
+                        WriteLine(e.Message);
+                        log.WriteLine(e.Message);
+                    }
+                }
+                else
+                {
+                    WriteLine("Did not post to Reddit. Duplicate found.");
                 }
             }
             else
             {
-                WriteLine("Something happened trying to log in to reddit.");
+                WriteLine("Something bad happened while trying to log in to Reddit.");
             }
-
-
-
             log.WriteLine("Application exited normally.");
             WriteLine("Application exited normally.");
         }
