@@ -1,4 +1,4 @@
-#<img src="http://i.imgur.com/Ffq2v67.png" height="48px" /> DerpBot <sub><sup>0.0.3</sup></sub>
+<img src="http://i.imgur.com/Ffq2v67.png" height="48px" /> DerpBot <sub><sup>0.0.3</sup></sub>
 
 
 
@@ -6,8 +6,7 @@
 
 - [ ] Proper Documentation
 - [ ] Set-up instructions
-- [ ] Duplicate checking - do not repost already posted images on the same sub
-- [ ] Derpibooru post favoriting - when posted, favorite the image on derpibooru (Need to ask derpibooru mods if this is allowed)  
+- [X] Duplicate checking - do not repost already posted images on the same sub
 - [X] Linux support (via mono)  
 
 
