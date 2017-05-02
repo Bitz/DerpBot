@@ -1,3 +1,8 @@
+<h4>0.0.8</h4>
+<ul class="log">
+<li>Fixed support to mobile Twitter links.</li>
+<li>Removed more until I encode URLS properly.</li>
+</ul>
 <h4>0.0.7</h4>
 <ul class="log">
 <li>Added duplicate handling! Woo!</li>

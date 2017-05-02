@@ -19,7 +19,7 @@ namespace DerpBot
     {
         static void Main(string[] args)
         {
-            const string version = "0.0.7";
+            const string version = "0.0.8";
             Title = $"Derpbot {version}";
             configuration config = null;
 
@@ -199,7 +199,7 @@ namespace DerpBot
             string parsedDerpibooruSource = config.imgur.useimgur != 1
                 ? Empty
                 : $"[Derpibooru Link](https://{domain}/{top.id})";
-            string comment = $"[](/sweetiecardbot) {parsedSource} | {parsedDerpibooruSource} | {moreSource} " +
+            string comment = $"[](/sweetiecardbot) {parsedSource} | {parsedDerpibooruSource} " +
                              "\r\n  \r\n" +
                              "---" +
                              "\r\n  \r\n" +

@@ -197,13 +197,20 @@ namespace DerpBot.Functions
 
             private static string GetOg(string url)
             {
+                if (url.Contains("mobile.twitter.com"))
+                {
+                    url = url.Replace("mobile.", String.Empty);
+                }
                 string resultUrl = "";
                 string html = FetchHtml(url);
                 HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(html);
                 HtmlNodeCollection list = doc.DocumentNode.SelectNodes("//meta");
                 if (list == null) return string.Empty;
+
                 HtmlNode first = list.First(x => x.Attributes["property"]?.Value == "og:image");
+                
+              
                 if (first != null)
                 {
                     resultUrl = first.Attributes["content"].Value;
@@ -218,7 +225,7 @@ namespace DerpBot.Functions
                 try
                 {
                     HttpWebRequest oReq = (HttpWebRequest)WebRequest.Create(url);
-                    oReq.UserAgent = "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)";
+                    oReq.UserAgent = "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)";
                     HttpWebResponse resp = (HttpWebResponse)oReq.GetResponse();
                     Stream stream = resp.GetResponseStream();
                     if (stream != null)
