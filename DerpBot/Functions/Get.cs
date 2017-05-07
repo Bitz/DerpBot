@@ -43,6 +43,10 @@ namespace DerpBot.Functions
 
         public static List<bool> GetHash(string url)
         {
+            if (url.Contains("gfycat.com"))
+            {
+                url = ImageFromPost.GetOg(url);
+            }
             //Download the image...
             List<bool> lResult = new List<bool>();
             WebRequest request = WebRequest.Create(url);
@@ -195,26 +199,40 @@ namespace DerpBot.Functions
                 return response;
             }
 
-            private static string GetOg(string url)
+            public static string GetOg(string url)
             {
+                //Handle edge cases
                 if (url.Contains("mobile.twitter.com"))
                 {
                     url = url.Replace("mobile.", String.Empty);
                 }
+
+                if (url.Contains("tumblr.com/image/"))
+                {
+                    url = url.Replace("/image/", "/post/");
+                }
+                
                 string resultUrl = "";
                 string html = FetchHtml(url);
                 HtmlDocument doc = new HtmlDocument();
                 doc.LoadHtml(html);
                 HtmlNodeCollection list = doc.DocumentNode.SelectNodes("//meta");
                 if (list == null) return string.Empty;
-
-                HtmlNode first = list.First(x => x.Attributes["property"]?.Value == "og:image");
-                
               
-                if (first != null)
+                try
                 {
-                    resultUrl = first.Attributes["content"].Value;
+
+                    HtmlNode  first = list.First(x => x.Attributes["property"]?.Value == "og:image");
+                    if (first != null)
+                    {
+                        resultUrl = first.Attributes["content"].Value;
+                    }
                 }
+                catch (Exception e)
+                {
+                    // ignored
+                }
+
                 return resultUrl;
             }
 

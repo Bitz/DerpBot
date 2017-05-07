@@ -1,3 +1,8 @@
+<h4>0.0.9</h4>
+<ul class="log">
+<li>Fixed support for tumblr image galleries for dupe handling</li>
+<li>Fixed loop in dupe handling.</li>
+</ul>
 <h4>0.0.8</h4>
 <ul class="log">
 <li>Fixed support to mobile Twitter links.</li>

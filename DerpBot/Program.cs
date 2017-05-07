@@ -203,7 +203,7 @@ namespace DerpBot
                              "\r\n  \r\n" +
                              "---" +
                              "\r\n  \r\n" +
-                             $"This is a bot | [Info](https://bitz.rocks/derpbot/) | [Report problems](/message/compose/?to=BitzLeon&subject=_sweetiebot running Derpbot {version}) | [Source code](https://github.com/Bitz/DerpBot)";
+                             $"This is a bot | [Info](https://bitz.rocks/derpbot/) | [Report problems](/message/compose/?to=BitzLeon&subject={redditUsername} running Derpbot {version}) | [Source code](https://github.com/Bitz/DerpBot)";
 
 
             BotWebAgent webAgent = new BotWebAgent(
@@ -234,9 +234,12 @@ namespace DerpBot
                     {
                         double equalElements =
                             currentImageHash.Zip(Get.GetHash(temp.Url), (i, j) => i == j).Count(eq => eq) / 256.00;
-                        WriteLine($"{equalElements:P2}% similar");
-                        if (equalElements >= 0.95) duplicateFound = true;
-                        break;
+                        WriteLine($"{equalElements:P2} similar");
+                        if (equalElements >= 0.99)
+                        {
+                            duplicateFound = true;
+                            break;
+                        }
                     }
                 }
                 if (!duplicateFound)
