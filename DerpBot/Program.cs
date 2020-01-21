@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using DerpBot.Functions;
@@ -19,7 +20,9 @@ namespace DerpBot
     {
         static void Main(string[] args)
         {
-            const string version = "0.0.8";
+            System.Reflection.Assembly assembly = System.Reflection.Assembly.GetExecutingAssembly();
+            FileVersionInfo fvi = FileVersionInfo.GetVersionInfo(assembly.Location);
+            string version = fvi.FileVersion;
             Title = $"Derpbot {version}";
             configuration config = null;
 
@@ -106,16 +109,14 @@ namespace DerpBot
             }
 
             //Build the request url for Derpibooru
-            string requestUrl =
-                $"https://{domain}/search.json?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
+            string requestUrl = 
+                $"https://{domain}/api/v1/json/search/images?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
 
             //Why not shove the api call method, json serialization and object lambada selection all in one statment!? MWHAHAHAHA
-            DerpibooruResponse.Search top =
-                JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result)
-                    .search.First();
+            var top = JsonConvert.DeserializeObject<Derpibooru>(Get.Derpibooru(requestUrl).Result).Images.First();
 
             //Find the artist data in the tags that were pulled from Derpibooru
-            List<string> topImageTags = top.tags.Split(',').Select(x => x.Trim()).ToList();
+            List<string> topImageTags = top.Tags.Select(x => x.Trim()).ToList();
             List<string> artists = topImageTags.Where(x => x.Contains("artist:")).ToList();
             string artistString = null;
             if (artists.Count == 0)
@@ -150,13 +151,13 @@ namespace DerpBot
                 }
             }
             string postTitle = $"Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist: {artistString}] {sensitiveTitle}";
-            string source = top.source_url.Length > 0 ? top.source_url : Empty;
+            string source = top.SourceUrl.Length > 0 ? top.SourceUrl : Empty;
 
             string hostedImageLink;
-            WriteLine($"Top found with ID {top.id}");
+            WriteLine($"Top found with ID {top.Id}");
             if (rehostOnImgur)
             {
-                if (Path.GetExtension(top.image) != ".gif")
+                if (Path.GetExtension(top.ViewUrl) != ".gif")
                 {
                     //Build imgur request
                     Request.Imgur imgurRequest = new Request.Imgur
@@ -164,7 +165,7 @@ namespace DerpBot
                         ApiKey = imgurApiKey,
                         Description = source,
                         Title = postTitle,
-                        Url = $"https:{top.image}"
+                        Url = top.ViewUrl
                     };
 
                     //Post to imgur
@@ -180,7 +181,7 @@ namespace DerpBot
                     {
                         ApiKey = gfycatApiKey,
                         ClientId = gfycatClientId,
-                        ImageUrl = $"https:{top.image}",
+                        ImageUrl = $"https:{top.ViewUrl}",
                         Title = postTitle
                     };
                     hostedImageLink = Post.PostToGfycat(gfycatRequest);
@@ -189,7 +190,7 @@ namespace DerpBot
             else
             {
                 //If we aren't using imgur to host, we are just going to build a link to derpibooru instead
-                hostedImageLink = $"https://{domain}/{top.id}";
+                hostedImageLink = $"https://{domain}/images/{top.Id}";
             }
 
             //Building all the reddit request parts
@@ -198,7 +199,7 @@ namespace DerpBot
             string parsedSource = source == Empty ? "No source provided" : $"[Original Source]({source})";
             string parsedDerpibooruSource = config.imgur.useimgur != 1
                 ? Empty
-                : $"[Derpibooru Link](https://{domain}/{top.id})";
+                : $"[Derpibooru Link](https://{domain}/images/{top.Id})";
             string comment = $"[](/sweetiecardbot) {parsedSource} | {parsedDerpibooruSource} " +
                              "\r\n  \r\n" +
                              "---" +
@@ -217,7 +218,7 @@ namespace DerpBot
             //Login to reddit
             reddit.LogIn(redditUsername, redditPassword);
             //Check to see if we logged in properly
-            if (reddit.User.FullName.ToLower() == redditUsername)
+            if (reddit.User.FullName.ToLowerInvariant() == redditUsername.ToLowerInvariant())
             {
                 WriteLine("Logged into Reddit.");
                 Subreddit subreddit = reddit.GetSubreddit(redditSub);

@@ -228,7 +228,7 @@ namespace DerpBot.Functions
                         resultUrl = first.Attributes["content"].Value;
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }

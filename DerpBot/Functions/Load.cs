@@ -1,4 +1,7 @@
-﻿using System.Xml;
+﻿using System;
+using System.IO;
+using System.Reflection;
+using System.Xml;
 using DerpBot.Models;
 
 namespace DerpBot.Functions
@@ -7,10 +10,9 @@ namespace DerpBot.Functions
     {
         public static configuration Config()
         {
-            string directory = System.IO.Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+            string directory = Path.GetDirectoryName(Assembly.GetEntryAssembly()?.Location);
             XmlDocument config = new XmlDocument();
-            string slash = Get.IsRunningOnMono() ? @"\" : @"/";
-            config.Load($@"{directory}{slash}Configuration.xml");
+            config.Load(Path.Combine(directory ?? throw new InvalidOperationException(), "Configuration.xml"));
             XmlNode node = config.DocumentElement;
             return Convert.ConvertNode<configuration>(node);
         }
