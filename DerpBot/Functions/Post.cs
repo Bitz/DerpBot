@@ -22,7 +22,9 @@ namespace DerpBot.Functions
         {
             ImgurClient client = new ImgurClient(model.ApiKey);
             ImageEndpoint endpoint = new ImageEndpoint(client);
-            IImage image = await endpoint.UploadImageUrlAsync(model.Url, null, model.Title, model.Description);
+            var webClient = new WebClient();
+            byte[] imageBytes = webClient.DownloadData(model.Url);
+            IImage image = await endpoint.UploadImageBinaryAsync(imageBytes, null, model.Title, model.Description);
             return image;
         }
 

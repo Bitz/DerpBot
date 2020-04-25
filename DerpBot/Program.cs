@@ -19,7 +19,7 @@ namespace DerpBot
     {
         static void Main(string[] args)
         {
-            const string version = "0.0.8";
+            const string version = "0.2.0";
             Title = $"Derpbot {version}";
             configuration config = null;
 
@@ -104,18 +104,18 @@ namespace DerpBot
                     tags += $", created_at:{minage:yyyy-MM-dd}";
                     break;
             }
+            tags += ", -webm";
 
             //Build the request url for Derpibooru
             string requestUrl =
-                $"https://{domain}/search.json?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
+                $"https://{domain}/api/v1/json/search/images?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
 
             //Why not shove the api call method, json serialization and object lambada selection all in one statment!? MWHAHAHAHA
-            DerpibooruResponse.Search top =
-                JsonConvert.DeserializeObject<DerpibooruResponse.Rootobject>(Get.Derpibooru(requestUrl).Result)
-                    .search.First();
+            Image top =
+                JsonConvert.DeserializeObject<Derpibooru>(Get.Derpibooru(requestUrl).Result).Images.First();
 
             //Find the artist data in the tags that were pulled from Derpibooru
-            List<string> topImageTags = top.tags.Split(',').Select(x => x.Trim()).ToList();
+            List<string> topImageTags = top.Tags.Select(x => x.Trim()).ToList();
             List<string> artists = topImageTags.Where(x => x.Contains("artist:")).ToList();
             string artistString = null;
             if (artists.Count == 0)
@@ -150,13 +150,13 @@ namespace DerpBot
                 }
             }
             string postTitle = $"Top Image of {Now.AddDays(-1):MM-dd-yyyy} [Artist: {artistString}] {sensitiveTitle}";
-            string source = top.source_url.Length > 0 ? top.source_url : Empty;
+            string source = top.SourceUrl.Length > 0 ? top.SourceUrl : Empty;
 
             string hostedImageLink;
-            WriteLine($"Top found with ID {top.id}");
+            WriteLine($"Top found with ID {top.Id}");
             if (rehostOnImgur)
             {
-                if (Path.GetExtension(top.image) != ".gif")
+                if (Path.GetExtension(top.ViewUrl) != ".gif")
                 {
                     //Build imgur request
                     Request.Imgur imgurRequest = new Request.Imgur
@@ -164,11 +164,21 @@ namespace DerpBot
                         ApiKey = imgurApiKey,
                         Description = source,
                         Title = postTitle,
-                        Url = $"https:{top.image}"
+                        Url = top.ViewUrl
                     };
 
                     //Post to imgur
-                    IImage hostedImage = Post.PostToImgur(imgurRequest).Result;
+                    IImage hostedImage;
+                    try
+                    {
+                        hostedImage = Post.PostToImgur(imgurRequest).Result;
+                    }
+                    catch (AggregateException e)
+                    {
+                        WriteLine(e);
+                        imgurRequest.Url = $"{top.Representations.Large}";
+                        hostedImage = Post.PostToImgur(imgurRequest).Result;
+                    }
                     WriteLine($"Image uploaded to Imgur: {hostedImage.Link}");
                     hostedImageLink = hostedImage.Link;
                     //Keep the delete hash in a text file, incase someone doesn't want us reposting their content
@@ -180,7 +190,7 @@ namespace DerpBot
                     {
                         ApiKey = gfycatApiKey,
                         ClientId = gfycatClientId,
-                        ImageUrl = $"https:{top.image}",
+                        ImageUrl = top.ViewUrl,
                         Title = postTitle
                     };
                     hostedImageLink = Post.PostToGfycat(gfycatRequest);
@@ -189,16 +199,16 @@ namespace DerpBot
             else
             {
                 //If we aren't using imgur to host, we are just going to build a link to derpibooru instead
-                hostedImageLink = $"https://{domain}/{top.id}";
+                hostedImageLink = $"https://{domain}/images/{top.Id}";
             }
 
             //Building all the reddit request parts
-            string moreSource =
-                $"[More]({Uri.EscapeUriString($"https://{domain}/search?q={config.subreddit_configurations[argumentIndex].tags}&filter_id=56027")})";
+            //string moreSource =
+            //    $"[More]({Uri.EscapeUriString($"https://{domain}/search?q={config.subreddit_configurations[argumentIndex].tags}&filter_id=56027")})";
             string parsedSource = source == Empty ? "No source provided" : $"[Original Source]({source})";
             string parsedDerpibooruSource = config.imgur.useimgur != 1
                 ? Empty
-                : $"[Derpibooru Link](https://{domain}/{top.id})";
+                : $"[Derpibooru Link](https://{domain}/images/{top.Id})";
             string comment = $"[](/sweetiecardbot) {parsedSource} | {parsedDerpibooruSource} " +
                              "\r\n  \r\n" +
                              "---" +
@@ -251,7 +261,7 @@ namespace DerpBot
                         WriteLine("Commenting on post on Reddit");
                         post.Comment(comment);
                     }
-                    catch (Exception e)
+                    catch (ArithmeticException e)
                     {
                         WriteLine(e.Message);
                         log.WriteLine(e.Message);
@@ -259,6 +269,7 @@ namespace DerpBot
                 }
                 else
                 {
+                    //TODO Use delete hash to remove image from imgur? would be nice for them.
                     WriteLine("Did not post to Reddit. Duplicate found.");
                 }
             }

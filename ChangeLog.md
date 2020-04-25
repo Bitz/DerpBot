@@ -1,3 +1,7 @@
+<h4>0.1.0</h4>
+<ul class="log">
+<li>Fixed support for overly large images</li>
+</ul>
 <h4>0.0.9</h4>
 <ul class="log">
 <li>Fixed support for tumblr image galleries for dupe handling</li>

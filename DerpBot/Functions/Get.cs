@@ -15,6 +15,7 @@ namespace DerpBot.Functions
 {
     public class Get
     {
+        static readonly List<string> ImageList = new List<string> { ".jpg", ".png", ".gif", ".jepg" };
         public static async Task<string> Derpibooru(string url)
         {
             using (HttpClient client = new HttpClient())
@@ -43,7 +44,7 @@ namespace DerpBot.Functions
 
         public static List<bool> GetHash(string url)
         {
-            if (url.Contains("gfycat.com"))
+            if (url.Contains("gfycat.com") && !ImageList.Any(s => url.EndsWith(s)))
             {
                 url = ImageFromPost.GetOg(url);
             }
@@ -51,28 +52,21 @@ namespace DerpBot.Functions
             List<bool> lResult = new List<bool>();
             WebRequest request = WebRequest.Create(url);
             WebResponse response = request.GetResponse();
+            
             Stream responseStream = response.GetResponseStream();
             if (responseStream != null)
             {
             Bitmap bmpSource = new Bitmap(responseStream);
-                //TODO Maybe someday fix thumbnail support for performance...
-            //if (bmpSource.Width != bmpSource.Height)
-            //{
-            //   Bitmap bitmap = BitmapTools.CropFunction(bmpSource);
-               
-            //    bmpSource = bitmap;
-            //    bitmap.Save(@"C:\test.png", ImageFormat.Png);
-            //}
                 //create new image with 16x16 pixel
-                Bitmap bmpMin = new Bitmap(bmpSource, new Size(16, 16));
-                for (int j = 0; j < bmpMin.Height; j++)
+            Bitmap bmpMin = new Bitmap(bmpSource, new Size(16, 16));
+            for (int j = 0; j < bmpMin.Height; j++)
+            {
+                for (int i = 0; i < bmpMin.Width; i++)
                 {
-                    for (int i = 0; i < bmpMin.Width; i++)
-                    {
-                        //reduce colors to true / false                
-                        lResult.Add(bmpMin.GetPixel(i, j).GetBrightness() < 0.5f);
-                    }
+                    //reduce colors to true / false                
+                    lResult.Add(bmpMin.GetPixel(i, j).GetBrightness() < 0.5f);
                 }
+            }
                 
             }
             return lResult;
@@ -181,7 +175,6 @@ namespace DerpBot.Functions
             public static ImageUrl GetImageUrl(RedditSharp.Things.Post post)
             {
                 ImageUrl response = new ImageUrl();
-                List<string> imageList = new List<string> { ".jpg", ".png", ".gif" };
                 string returnUrl;
                 string path = post.Url.ToString();
                 string extension = Path.GetExtension(path);
@@ -191,7 +184,7 @@ namespace DerpBot.Functions
                 //}
                 //else
                 //{
-                    returnUrl = imageList.Any(x => x.Equals(extension) && !String.IsNullOrEmpty(extension)) ? post.Url.ToString() : GetOg(post.Url.ToString());
+                    returnUrl = ImageList.Any(x => x.Equals(extension) && !String.IsNullOrEmpty(extension)) ? post.Url.ToString() : GetOg(post.Url.ToString());
                // }
                 Uri test;
                 response.IsValid = Uri.TryCreate(returnUrl, UriKind.Absolute, out test) && (test.Scheme == Uri.UriSchemeHttp || test.Scheme == Uri.UriSchemeHttps);
@@ -218,17 +211,16 @@ namespace DerpBot.Functions
                 doc.LoadHtml(html);
                 HtmlNodeCollection list = doc.DocumentNode.SelectNodes("//meta");
                 if (list == null) return string.Empty;
-              
                 try
                 {
-
-                    HtmlNode  first = list.First(x => x.Attributes["property"]?.Value == "og:image");
-                    if (first != null)
-                    {
-                        resultUrl = first.Attributes["content"].Value;
-                    }
+                    List<HtmlNode> ogImageNodes = list.Where(x => x.Attributes["property"]?.Value == "og:image" && x.Attributes["property"].Value != null ).ToList();
+                    //Prefer any format vs gif
+                    var first = ogImageNodes.First(x => x.Attributes["content"].Value.EndsWith(".jpg") 
+                                                        || x.Attributes["content"].Value.EndsWith(".jpeg") 
+                                                        || x.Attributes["content"].Value.EndsWith(".png"));
+                    resultUrl = first != null ? first.Attributes["content"].Value : ogImageNodes.First().Attributes["content"].Value;
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     // ignored
                 }
