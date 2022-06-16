@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32422.2
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DerpBot", "DerpBot\DerpBot.csproj", "{60ADFC0C-49ED-4BA6-93AB-56090AAEF39E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{31ACFCC6-2DD4-437D-8E45-ABE376DB44EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DerpBotCore", "DerpBotCore\DerpBotCore.csproj", "{99EF13AC-2FC2-4C2A-80E5-84634F1C2645}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,8 +19,15 @@ Global
 		{60ADFC0C-49ED-4BA6-93AB-56090AAEF39E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{60ADFC0C-49ED-4BA6-93AB-56090AAEF39E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{60ADFC0C-49ED-4BA6-93AB-56090AAEF39E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{99EF13AC-2FC2-4C2A-80E5-84634F1C2645}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{99EF13AC-2FC2-4C2A-80E5-84634F1C2645}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{99EF13AC-2FC2-4C2A-80E5-84634F1C2645}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{99EF13AC-2FC2-4C2A-80E5-84634F1C2645}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B897BFD8-4283-4DFE-A20E-1440C3F71D98}
 	EndGlobalSection
 EndGlobal
