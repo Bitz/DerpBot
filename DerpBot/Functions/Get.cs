@@ -18,21 +18,14 @@ namespace DerpBot.Functions
         static readonly List<string> ImageList = new List<string> { ".jpg", ".png", ".gif", ".jepg" };
         public static async Task<string> Derpibooru(string url)
         {
-            using (HttpClient client = new HttpClient())
+            WebClient client = new WebClient
             {
-                string type = "application/json";
-                client.BaseAddress = new Uri(url);
-
-                client.DefaultRequestHeaders.Accept.Clear();
-                client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue(type));
-                HttpResponseMessage response = await client.GetAsync(String.Empty);
-
-                if (response.IsSuccessStatusCode)
+                Headers = new WebHeaderCollection
                 {
-                    return await response.Content.ReadAsStringAsync();
+                    {"User-Agent", "Top Yiff Bot/1.0 (by @ClubFlank on Twitter)"}
                 }
-                return string.Empty;
-            }
+            };
+            return await client.DownloadStringTaskAsync(url);
         }
 
         public static bool IsRunningOnMono()
