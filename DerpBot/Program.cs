@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using DerpBot.Functions;
@@ -111,8 +112,7 @@ namespace DerpBot
                 $"https://{domain}/api/v1/json/search/images?q={tags}&key={derpibooruApiKey}&sf=score&sd=desc&perpage=15";
 
             //Why not shove the api call method, json serialization and object lambada selection all in one statment!? MWHAHAHAHA
-            Image top =
-                JsonConvert.DeserializeObject<Derpibooru>(Get.Derpibooru(requestUrl).Result).Images.First();
+            var top = JsonConvert.DeserializeObject<Derpibooru>(Get.Derpibooru(requestUrl).Result).Images.First();
 
             //Find the artist data in the tags that were pulled from Derpibooru
             List<string> topImageTags = top.Tags.Select(x => x.Trim()).ToList();
@@ -190,7 +190,7 @@ namespace DerpBot
                     {
                         ApiKey = gfycatApiKey,
                         ClientId = gfycatClientId,
-                        ImageUrl = top.ViewUrl,
+                        ImageUrl = $"https:{top.ViewUrl}",
                         Title = postTitle
                     };
                     hostedImageLink = Post.PostToGfycat(gfycatRequest);
@@ -227,7 +227,7 @@ namespace DerpBot
             //Login to reddit
             reddit.LogIn(redditUsername, redditPassword);
             //Check to see if we logged in properly
-            if (reddit.User.FullName.ToLower() == redditUsername)
+            if (reddit.User.FullName.ToLowerInvariant() == redditUsername.ToLowerInvariant())
             {
                 WriteLine("Logged into Reddit.");
                 Subreddit subreddit = reddit.GetSubreddit(redditSub);
